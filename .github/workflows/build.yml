@@ -28,8 +28,9 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: Compila
-        run: ./gradlew assembleDebug --stacktrace
+      - name: Compila (debug e release)
+        # la release usa R8 e la firma: meglio scoprire qui eventuali problemi, prima del merge
+        run: ./gradlew assembleDebug assembleRelease --stacktrace
 
       - name: Verifica i permessi dichiarati (l'app non deve avere INTERNET)
         run: |

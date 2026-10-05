@@ -74,29 +74,21 @@ jobs:
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          KEYSTORE="$RUNNER_TEMP/release.jks"
           if [ -n "$KEYSTORE_BASE64" ]; then
-            echo "Uso la chiave di firma salvata nei Secrets del repository."
+            echo "Uso la chiave privata salvata nei Secrets del repository."
+            KEYSTORE="$RUNNER_TEMP/release.jks"
             echo "$KEYSTORE_BASE64" | base64 -d > "$KEYSTORE"
-            echo "SIGNING_KIND=secrets" >> "$GITHUB_ENV"
+            {
+              echo "DAP_KEYSTORE_FILE=$KEYSTORE"
+              echo "DAP_KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"
+              echo "DAP_KEY_ALIAS=$KEY_ALIAS"
+              echo "DAP_KEY_PASSWORD=$KEY_PASSWORD"
+            } >> "$GITHUB_ENV"
+            echo "SIGNING_KIND=private" >> "$GITHUB_ENV"
           else
-            echo "Nessun Secret di firma: genero una chiave temporanea per questa release."
-            KEYSTORE_PASSWORD="$(openssl rand -hex 16)"
-            KEY_PASSWORD="$KEYSTORE_PASSWORD"
-            KEY_ALIAS="dapgalleria"
-            echo "::add-mask::$KEYSTORE_PASSWORD"
-            keytool -genkeypair -keystore "$KEYSTORE" -storetype PKCS12 \
-              -alias "$KEY_ALIAS" -keyalg RSA -keysize 2048 -validity 10000 \
-              -storepass "$KEYSTORE_PASSWORD" -keypass "$KEY_PASSWORD" \
-              -dname "CN=DapGalleria, O=DapGalleria, C=IT"
-            echo "SIGNING_KIND=temporary" >> "$GITHUB_ENV"
+            echo "Nessun Secret di firma: uso la chiave pubblica del repository (keystore/dapgalleria-public.jks)."
+            echo "SIGNING_KIND=public" >> "$GITHUB_ENV"
           fi
-          {
-            echo "DAP_KEYSTORE_FILE=$KEYSTORE"
-            echo "DAP_KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"
-            echo "DAP_KEY_ALIAS=$KEY_ALIAS"
-            echo "DAP_KEY_PASSWORD=$KEY_PASSWORD"
-          } >> "$GITHUB_ENV"
 
       - if: env.SKIP != 'true'
         name: Compila l'APK di release
@@ -123,11 +115,8 @@ jobs:
             echo "3. Concedi l'accesso a foto e video e inizia a fare swipe."
             echo
             echo "Richiede Android 8.0 o successivo."
-            if [ "$SIGNING_KIND" = "temporary" ]; then
-              echo
-              echo "> L'APK è firmato con una chiave generata automaticamente per questa release: per aggiornare da una versione precedente"
-              echo "> potrebbe servire disinstallarla prima. Per avere sempre la stessa firma, imposta i Secrets descritti nel README."
-            fi
+            echo
+            echo "Gli aggiornamenti si installano direttamente sopra la versione precedente (stessa firma), senza disinstallare."
             echo
             echo "---"
             echo

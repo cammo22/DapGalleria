@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Crop
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -54,6 +55,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dapprod.dapgalleria.data.MediaEntry
+import com.dapprod.dapgalleria.data.MediaType
 import com.dapprod.dapgalleria.ui.Decision
 import com.dapprod.dapgalleria.ui.theme.Palette
 import kotlinx.coroutines.CoroutineScope
@@ -115,6 +117,7 @@ fun SwipeDeck(
     canUndo: Boolean,
     onDecision: (Decision) -> Unit,
     onUndo: () -> Unit,
+    onCrop: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val top = items[index]
@@ -215,9 +218,11 @@ fun SwipeDeck(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            ActionButton(Icons.AutoMirrored.Filled.Undo, "Annulla l'ultimo swipe", Palette.Amber, 52.dp, enabled = canUndo, onClick = onUndo)
-            ActionButton(Icons.Filled.Close, "Elimina", Palette.Delete, 74.dp) { swipe.fling(Decision.DELETE) }
-            ActionButton(Icons.Filled.Check, "Tieni", Palette.Keep, 74.dp) { swipe.fling(Decision.KEEP) }
+            ActionButton(Icons.AutoMirrored.Filled.Undo, "Annulla l'ultimo swipe", Palette.Amber, 48.dp, enabled = canUndo, onClick = onUndo)
+            ActionButton(Icons.Filled.Close, "Elimina", Palette.Delete, 66.dp) { swipe.fling(Decision.DELETE) }
+            ActionButton(Icons.Filled.Check, "Tieni", Palette.Keep, 66.dp) { swipe.fling(Decision.KEEP) }
+            // ritaglia e tieni solo la versione ritagliata (solo foto)
+            ActionButton(Icons.Filled.Crop, "Ritaglia e tieni", Palette.Sky, 48.dp, enabled = top.type == MediaType.PHOTO, onClick = onCrop)
         }
     }
 }

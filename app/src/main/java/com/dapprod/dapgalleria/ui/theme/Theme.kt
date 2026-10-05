@@ -16,6 +16,7 @@ object Palette {
     val Keep = Color(0xFF2EE59D)
     val Delete = Color(0xFFFF4D5E)
     val Amber = Color(0xFFFFB74D)
+    val Sky = Color(0xFF4DB8FF)
     val TextPrimary = Color(0xFFF2F2F7)
     val TextSecondary = Color(0xFFA9A9BC)
 }

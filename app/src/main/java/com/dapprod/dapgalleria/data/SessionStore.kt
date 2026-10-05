@@ -25,9 +25,20 @@ class SessionStore(context: Context) {
         get() = prefs.getBoolean(PHOTO_MODE, true)
         set(value) = prefs.edit { putBoolean(PHOTO_MODE, value) }
 
-    var randomOrder: Boolean
-        get() = prefs.getBoolean(RANDOM, false)
-        set(value) = prefs.edit { putBoolean(RANDOM, value) }
+    /** Punteggio totale, memoria liberata (byte) ed elementi eliminati definitivamente. */
+    fun loadStats(): Stats = Stats(
+        score = prefs.getLong(SCORE, 0L),
+        freedBytes = prefs.getLong(FREED, 0L),
+        deletedCount = prefs.getInt(DELETED, 0),
+    )
+
+    fun saveStats(stats: Stats) {
+        prefs.edit {
+            putLong(SCORE, stats.score)
+            putLong(FREED, stats.freedBytes)
+            putInt(DELETED, stats.deletedCount)
+        }
+    }
 
     var showReviewed: Boolean
         get() = prefs.getBoolean(SHOW_REVIEWED, false)
@@ -37,7 +48,9 @@ class SessionStore(context: Context) {
         const val KEPT = "kept"
         const val PENDING = "pending"
         const val PHOTO_MODE = "photo_mode"
-        const val RANDOM = "random"
+        const val SCORE = "score"
+        const val FREED = "freed_bytes"
+        const val DELETED = "deleted_count"
         const val SHOW_REVIEWED = "show_reviewed"
     }
 }

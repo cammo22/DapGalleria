@@ -26,6 +26,7 @@ import coil.compose.AsyncImage
 import com.dapprod.dapgalleria.data.MediaEntry
 import com.dapprod.dapgalleria.data.MediaType
 import com.dapprod.dapgalleria.ui.components.VideoSurface
+import com.dapprod.dapgalleria.ui.components.rememberVideoPlayer
 import com.dapprod.dapgalleria.ui.components.describe
 import com.dapprod.dapgalleria.ui.components.rememberMediaRequest
 
@@ -49,13 +50,8 @@ fun MediaPreviewDialog(entry: MediaEntry, onDismiss: () -> Unit, onRestore: () -
                     modifier = Modifier.fillMaxSize(),
                 )
             } else {
-                VideoSurface(
-                    uri = entry.uri,
-                    playing = true,
-                    muted = false,
-                    showController = true,
-                    modifier = Modifier.fillMaxSize(),
-                )
+                val video = rememberVideoPlayer(entry.uri, entry.durationMs, playing = true, muted = false)
+                VideoSurface(video, Modifier.fillMaxSize(), showController = true)
             }
 
             IconButton(

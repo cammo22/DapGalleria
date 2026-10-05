@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.VideoLibrary
@@ -48,7 +49,6 @@ import androidx.compose.ui.unit.dp
 import com.dapprod.dapgalleria.data.MediaType
 import com.dapprod.dapgalleria.ui.Decision
 import com.dapprod.dapgalleria.ui.GalleryUiState
-import com.dapprod.dapgalleria.ui.SortOrder
 import com.dapprod.dapgalleria.ui.components.SwipeDeck
 import com.dapprod.dapgalleria.ui.theme.BrandGradient
 import com.dapprod.dapgalleria.ui.theme.Palette
@@ -57,8 +57,9 @@ class SwipeActions(
     val onMode: (MediaType) -> Unit,
     val onDecision: (Decision) -> Unit,
     val onUndo: () -> Unit,
+    val onCrop: () -> Unit,
+    val onOpenStats: () -> Unit,
     val onOpenReview: () -> Unit,
-    val onSort: (SortOrder) -> Unit,
     val onShowReviewed: (Boolean) -> Unit,
     val onResetKept: () -> Unit,
 )
@@ -85,6 +86,7 @@ fun SwipeScreen(state: GalleryUiState, actions: SwipeActions) {
                     canUndo = state.canUndo,
                     onDecision = actions.onDecision,
                     onUndo = actions.onUndo,
+                    onCrop = actions.onCrop,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -114,6 +116,7 @@ private fun TopBar(state: GalleryUiState, actions: SwipeActions) {
                 )
             }
         }
+        ScorePill(state.stats.score, onClick = actions.onOpenStats)
         IconButton(onClick = actions.onOpenReview) {
             BadgedBox(
                 badge = {
@@ -131,14 +134,6 @@ private fun TopBar(state: GalleryUiState, actions: SwipeActions) {
             }
             DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                 DropdownMenuItem(
-                    text = { Text(if (state.sort == SortOrder.RECENT) "✓  Dal più recente" else "Dal più recente") },
-                    onClick = { menuOpen = false; actions.onSort(SortOrder.RECENT) },
-                )
-                DropdownMenuItem(
-                    text = { Text(if (state.sort == SortOrder.RANDOM) "✓  Ordine casuale" else "Ordine casuale") },
-                    onClick = { menuOpen = false; actions.onSort(SortOrder.RANDOM) },
-                )
-                DropdownMenuItem(
                     text = { Text(if (state.showReviewed) "✓  Mostra anche quelli già tenuti" else "Mostra anche quelli già tenuti") },
                     onClick = { menuOpen = false; actions.onShowReviewed(!state.showReviewed) },
                 )
@@ -149,6 +144,22 @@ private fun TopBar(state: GalleryUiState, actions: SwipeActions) {
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ScorePill(score: Long, onClick: () -> Unit) {
+    Row(
+        Modifier
+            .clip(RoundedCornerShape(50))
+            .background(Palette.Surface)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 10.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(Icons.Filled.EmojiEvents, contentDescription = "Punteggio", tint = Palette.Amber, modifier = Modifier.size(18.dp))
+        Spacer(Modifier.size(4.dp))
+        Text(score.toString(), color = Palette.TextPrimary, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelLarge)
     }
 }
 
