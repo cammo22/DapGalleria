@@ -11,4 +11,6 @@ captures/
 *.aab
 *.jks
 *.keystore
+# l'unica chiave ammessa nel repo e' quella pubblica (vedi app/build.gradle.kts)
+!keystore/dapgalleria-public.jks
 __pycache__/

@@ -128,9 +128,15 @@ La release si pubblica da sola, in uno di questi modi:
 
 Il numero di versione dell’app (`versionName` / `versionCode`) è ricavato dal tag. Se la release esiste già, il workflow non fa nulla.
 
-### Firma stabile degli aggiornamenti (consigliato)
+### Firma e aggiornamenti
 
-Senza configurazione la CI firma ogni release con una chiave temporanea: l’APK è installabile, ma Android rifiuta di aggiornare sopra una release firmata con una chiave diversa. Per mantenere sempre la stessa firma, genera un keystore **una volta sola** e salvalo nei *Secrets* del repository (Settings → Secrets and variables → Actions):
+Ogni release è firmata con la stessa chiave, quindi **gli aggiornamenti si installano direttamente sopra la versione già presente**, senza disinstallare e senza perdere punti e decisioni.
+
+Per non richiedere nessuna configurazione, la chiave è inclusa nel repository ([`keystore/dapgalleria-public.jks`](keystore/dapgalleria-public.jks), password `dapgalleria`). È **volutamente pubblica**: serve a dare un’identità stabile all’app, non a proteggerla. Significa che chiunque potrebbe firmare un APK con la stessa identità: scarica DapGalleria solo da queste [Releases](https://github.com/cammo22/DapGalleria/releases) e, se vuoi, verifica il `.sha256`.
+
+> La release `v1.0.0` era firmata con una chiave temporanea: passando da `1.0.0` a `1.1.0` serve **una sola** disinstallazione; da lì in poi si aggiorna sempre sopra.
+
+**Preferisci una chiave privata?** Imposta questi *Secrets* (Settings → Secrets and variables → Actions) e la CI userà quella al posto della chiave pubblica:
 
 ```bash
 keytool -genkeypair -keystore dapgalleria.jks -alias dapgalleria \
@@ -144,8 +150,6 @@ base64 -w0 dapgalleria.jks      # incolla l’output in ANDROID_KEYSTORE_BASE64
 | `ANDROID_KEYSTORE_PASSWORD` | password del keystore |
 | `ANDROID_KEY_ALIAS` | alias della chiave (es. `dapgalleria`) |
 | `ANDROID_KEY_PASSWORD` | password della chiave |
-
-Non committare mai il keystore: è già escluso dal `.gitignore`.
 
 ## 🗺 Idee per il futuro
 

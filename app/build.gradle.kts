@@ -8,9 +8,13 @@ plugins {
 val appVersionName = providers.gradleProperty("versionName").orElse("1.0.0").get()
 val appVersionCode = providers.gradleProperty("versionCode").orElse("1").get().toInt()
 
-// La firma della release arriva solo da variabili d'ambiente (GitHub Secrets in CI).
-// Nessuna chiave o password e' salvata nel repository.
-val releaseKeystore: String? = System.getenv("DAP_KEYSTORE_FILE")
+// Firma della release.
+// Di default si usa keystore/dapgalleria-public.jks, una chiave VOLUTAMENTE PUBBLICA inclusa nel repo
+// (password nota): serve solo a far firmare ogni release con la stessa identita', cosi' gli
+// aggiornamenti si installano sopra la versione precedente senza configurare nulla.
+// Chi vuole una chiave privata imposta DAP_KEYSTORE_FILE / DAP_KEYSTORE_PASSWORD / DAP_KEY_ALIAS /
+// DAP_KEY_PASSWORD (in CI arrivano dai GitHub Secrets).
+val keystorePath: String = System.getenv("DAP_KEYSTORE_FILE") ?: "$rootDir/keystore/dapgalleria-public.jks"
 
 android {
     namespace = "com.dapprod.dapgalleria"
@@ -25,13 +29,11 @@ android {
     }
 
     signingConfigs {
-        if (releaseKeystore != null) {
-            create("release") {
-                storeFile = file(releaseKeystore)
-                storePassword = System.getenv("DAP_KEYSTORE_PASSWORD")
-                keyAlias = System.getenv("DAP_KEY_ALIAS")
-                keyPassword = System.getenv("DAP_KEY_PASSWORD")
-            }
+        create("release") {
+            storeFile = file(keystorePath)
+            storePassword = System.getenv("DAP_KEYSTORE_PASSWORD") ?: "dapgalleria"
+            keyAlias = System.getenv("DAP_KEY_ALIAS") ?: "dapgalleria"
+            keyPassword = System.getenv("DAP_KEY_PASSWORD") ?: "dapgalleria"
         }
     }
 
@@ -40,8 +42,7 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // Senza chiave di release si ripiega sulla chiave di debug (build locali).
-            signingConfig = signingConfigs.getByName(if (releaseKeystore != null) "release" else "debug")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
