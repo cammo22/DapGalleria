@@ -114,14 +114,13 @@ tools/                       script che generano icona e banner
 
 ## 🚀 Release automatiche
 
-Ogni volta che viene pubblicato un tag `vX.Y.Z`, GitHub Actions compila l’APK firmato e crea da solo la release con APK, checksum e note generate dai commit:
+La release si pubblica da sola, in uno di questi modi:
 
-```bash
-git tag v1.1.0
-git push origin v1.1.0      # …e la release si pubblica da sola
-```
+- **Al merge su `main`**: il file [`VERSION`](VERSION) contiene la versione corrente (es. `1.0.0`). Quando cambia su `main`, GitHub Actions crea il tag `v1.0.0`, compila l’APK firmato e pubblica la release con APK, checksum e note generate dai commit. Per una nuova versione basta aggiornare `VERSION` e fare il merge.
+- **Con un tag**: `git tag v1.1.0 && git push origin v1.1.0`.
+- **A mano**: *Actions → Release → Run workflow*.
 
-Si può anche lanciare a mano da **Actions → Release → Run workflow**. Il numero di versione dell’app è preso dal tag.
+Il numero di versione dell’app (`versionName` / `versionCode`) è ricavato dal tag. Se la release esiste già, il workflow non fa nulla.
 
 ### Firma stabile degli aggiornamenti (consigliato)
 
