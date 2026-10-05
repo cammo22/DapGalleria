@@ -15,7 +15,12 @@ class MediaRepository(private val resolver: ContentResolver) {
         (query(MediaType.PHOTO) + query(MediaType.VIDEO)).sortedByDescending { it.dateMillis }
     }
 
-    private fun query(type: MediaType): List<MediaEntry> {
+    /** Rilegge una singola foto appena creata (es. dopo un ritaglio). */
+    suspend fun loadPhoto(uri: Uri): MediaEntry? = withContext(Dispatchers.IO) {
+        query(MediaType.PHOTO, "${MediaStore.MediaColumns._ID}=?", arrayOf(ContentUris.parseId(uri).toString())).firstOrNull()
+    }
+
+    private fun query(type: MediaType, selection: String? = null, args: Array<String>? = null): List<MediaEntry> {
         val isVideo = type == MediaType.VIDEO
         val collection: Uri = if (isVideo) {
             MediaStore.Video.Media.EXTERNAL_CONTENT_URI
@@ -32,7 +37,7 @@ class MediaRepository(private val resolver: ContentResolver) {
         }.toTypedArray()
 
         val result = ArrayList<MediaEntry>()
-        resolver.query(collection, projection, null, null, null)?.use { c ->
+        resolver.query(collection, projection, selection, args, null)?.use { c ->
             val idCol = c.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
             val nameCol = c.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
             val sizeCol = c.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE)

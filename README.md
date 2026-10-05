@@ -22,13 +22,15 @@ Una foto alla volta: a destra la tieni, a sinistra la mandi nel cestino della se
 
 ## ✨ Cosa fa
 
-- **Swipe stile Tinder** su tutte le foto e i video del telefono: trascina la carta a destra per **tenere**, a sinistra per **eliminare**. Ci sono anche i pulsanti per chi preferisce toccare.
-- **Modalità Foto e modalità Video** con un tocco: nella seconda i video partono da soli, in loop, con tocco per la pausa e pulsante audio (di default sono muti, così non disturbi nessuno).
+- **Swipe stile Tinder** su tutte le foto e i video del telefono, **sempre in ordine casuale**: trascina la carta a destra per **tenere**, a sinistra per **eliminare**. Ci sono anche i pulsanti per chi preferisce toccare.
+- **Modalità Foto e modalità Video** con un tocco. Nei video, che partono da soli in loop (muti di default), vedi **durata e tempo trascorso**, puoi **trascinare la barra** per spostarti e usare **−10 s / +10 s**, pausa e audio.
+- **✂️ Ritaglia e tieni** (quarto pulsante, solo foto): ritagli la foto con un editor a maniglie (libero, 1:1, 4:3, 3:4, 16:9, 9:16). La versione ritagliata viene salvata in *Immagini/DapGalleria* e passa come “tenuta”; **l’originale finisce nella lista da eliminare**.
+- **🏆 Punteggio**: ogni elemento eliminato definitivamente vale **1 punto per ogni MB liberato** (minimo 1). Tocca la coppa in alto per vedere punti, livello (da *Novellino* a *Leggenda del vuoto*) e spazio totale liberato.
 - **Eliminazione in due tempi, senza rischi.** Uno swipe a sinistra *non cancella nulla*: il contenuto viene solo marchiato. Quando hai finito, apri la lista “Da eliminare” e confermi tutto in un colpo.
 - **Revisione veloce della sessione.** Griglia con tutte le miniature marchiate, dimensione totale che libererai, anteprima a schermo intero (video compresi) e filtro Tutti / Foto / Video.
 - **Hai swipato per sbaglio?** Tocca la ✕ su una miniatura per **toglierla dalla lista**, oppure usa il pulsante **Annulla** per tornare indietro di uno swipe mentre scorri.
 - **Le decisioni restano salvate.** Se chiudi l’app, i contenuti marchiati sono ancora lì e quelli già tenuti non ti vengono riproposti.
-- **Ordine recente o casuale**, con l’opzione di rivedere anche i contenuti già tenuti.
+- Opzione per rivedere anche i contenuti già tenuti.
 - **Privata al 100%**: nessun account, nessuna connessione a internet, niente analytics.
 
 ## 🧭 Come funziona
@@ -47,7 +49,9 @@ Una foto alla volta: a destra la tieni, a sinistra la mandi nel cestino della se
 | --- | --- |
 | Swipe a **destra** o ✓ | **Tieni**: il contenuto non viene più riproposto |
 | Swipe a **sinistra** o ✕ | **Marchia** come da eliminare (non è ancora cancellato) |
-| ↩︎ Annulla | Torna all’ultimo contenuto e annulla la decisione |
+| ↩︎ Annulla | Torna all’ultimo contenuto e annulla la decisione (anche un ritaglio) |
+| ✂️ Ritaglia | Apre l’editor: la foto ritagliata viene tenuta, l’originale va tra i da eliminare |
+| 🏆 in alto | Punteggio, livello e spazio liberato |
 | 🗑 in alto a destra | Apre la lista “Da eliminare” con il numero di elementi |
 | Tocco su un video | Pausa / riprendi |
 | Tocco su una miniatura | Anteprima a schermo intero |
@@ -102,11 +106,13 @@ app/src/main/java/com/dapprod/dapgalleria/
 ├── data/
 │   ├── MediaRepository.kt   legge foto e video da MediaStore
 │   ├── MediaDeleter.kt      eliminazione definitiva (Android 8 → 15)
+│   ├── ImageCropper.kt      apre e salva le foto ritagliate
+│   ├── Stats.kt             punteggio e livelli
 │   └── SessionStore.kt      decisioni e impostazioni su disco
 └── ui/
     ├── GalleryViewModel.kt  mazzo, swipe, annulla, lista da eliminare
     ├── components/          carta, mazzo con gesture, player video
-    └── screens/             schermata swipe, revisione, permessi, anteprima
+    └── screens/             schermata swipe, revisione, ritaglio, punteggio, permessi, anteprima
 tools/                       script che generano icona e banner
 ```
 
@@ -145,6 +151,7 @@ Non committare mai il keystore: è già escluso dal `.gitignore`.
 
 - [ ] Filtro per album / cartella
 - [ ] Widget “ricordami di fare ordine”
+- [ ] Taglio dei video
 - [ ] Gesto verso l’alto per condividere o spostare in un album
 - [ ] Tema chiaro e traduzione in inglese
 

@@ -29,10 +29,14 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dapprod.dapgalleria.data.MediaDeleter
+import com.dapprod.dapgalleria.data.MediaEntry
+import com.dapprod.dapgalleria.data.MediaType
 import com.dapprod.dapgalleria.ui.GalleryViewModel
+import com.dapprod.dapgalleria.ui.screens.CropDialog
 import com.dapprod.dapgalleria.ui.screens.PermissionScreen
 import com.dapprod.dapgalleria.ui.screens.ReviewScreen
 import com.dapprod.dapgalleria.ui.screens.SwipeActions
+import com.dapprod.dapgalleria.ui.screens.StatsDialog
 import com.dapprod.dapgalleria.ui.screens.SwipeScreen
 import com.dapprod.dapgalleria.ui.theme.DapGalleriaTheme
 
@@ -76,6 +80,9 @@ private fun AppRoot(deleter: MediaDeleter, vm: GalleryViewModel = viewModel()) {
         granted = hasPermissions(context)
     }
     var showReview by rememberSaveable { mutableStateOf(false) }
+    var showStats by rememberSaveable { mutableStateOf(false) }
+    // la foto in ritaglio resta fissa anche se intanto il mazzo avanza
+    var cropEntry by remember { mutableStateOf<MediaEntry?>(null) }
 
     // se l'utente concede il permesso dalle impostazioni di sistema, al ritorno si aggiorna da solo
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { granted = hasPermissions(context) }
@@ -106,7 +113,6 @@ private fun AppRoot(deleter: MediaDeleter, vm: GalleryViewModel = viewModel()) {
             onDelete = { items ->
                 val deleted = deleter.delete(items.map { it.uri }).map { it.toString() }.toSet()
                 vm.onDeleted(deleted)
-                deleted
             },
         )
     } else {
@@ -116,11 +122,22 @@ private fun AppRoot(deleter: MediaDeleter, vm: GalleryViewModel = viewModel()) {
                 onMode = vm::setMode,
                 onDecision = vm::decide,
                 onUndo = vm::undo,
+                onCrop = { cropEntry = state.current?.takeIf { it.type == MediaType.PHOTO } },
+                onOpenStats = { showStats = true },
                 onOpenReview = { showReview = true },
-                onSort = vm::setSort,
                 onShowReviewed = vm::setShowReviewed,
                 onResetKept = vm::resetKept,
             ),
+        )
+    }
+
+    if (showStats) StatsDialog(state.stats, onDismiss = { showStats = false })
+
+    cropEntry?.let { entry ->
+        CropDialog(
+            entry = entry,
+            onDismiss = { cropEntry = null },
+            onSave = { bitmap, rect -> vm.cropCurrent(bitmap, rect) },
         )
     }
 }

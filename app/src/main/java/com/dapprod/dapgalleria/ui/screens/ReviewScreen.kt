@@ -60,6 +60,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.dapprod.dapgalleria.data.MediaEntry
 import com.dapprod.dapgalleria.data.MediaType
+import com.dapprod.dapgalleria.data.Stats
+import com.dapprod.dapgalleria.ui.DeleteResult
 import com.dapprod.dapgalleria.ui.components.formatDuration
 import com.dapprod.dapgalleria.ui.components.formatSize
 import com.dapprod.dapgalleria.ui.components.rememberMediaRequest
@@ -78,8 +80,8 @@ fun ReviewScreen(
     pending: List<MediaEntry>,
     onBack: () -> Unit,
     onRestore: (Collection<String>) -> Unit,
-    /** Elimina davvero i file; ritorna le chiavi di quelli effettivamente eliminati. */
-    onDelete: suspend (List<MediaEntry>) -> Set<String>,
+    /** Elimina davvero i file; ritorna chi è stato eliminato, lo spazio liberato e i punti guadagnati. */
+    onDelete: suspend (List<MediaEntry>) -> DeleteResult,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -98,19 +100,19 @@ fun ReviewScreen(
         }
     }
     val totalBytes = remember(visible) { visible.sumOf { it.sizeBytes } }
+    val potentialPoints = remember(visible) { visible.sumOf { Stats.pointsFor(it.sizeBytes) } }
 
     fun startDelete() {
         val toDelete = visible
         scope.launch {
             deleting = true
-            val deleted = onDelete(toDelete)
+            val result = onDelete(toDelete)
             deleting = false
-            val freed = toDelete.filter { it.key in deleted }.sumOf { it.sizeBytes }
             snackbar.showSnackbar(
-                if (deleted.isEmpty()) {
+                if (result.deletedKeys.isEmpty()) {
                     "Nessun elemento eliminato"
                 } else {
-                    "Eliminati ${deleted.size} elementi · liberati ${formatSize(context, freed)}"
+                    "Eliminati ${result.deletedKeys.size} elementi · liberati ${formatSize(context, result.freedBytes)} · +${result.points} punti"
                 },
             )
         }
@@ -134,7 +136,7 @@ fun ReviewScreen(
                 Column(Modifier.weight(1f)) {
                     Text("Da eliminare", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     Text(
-                        "${visible.size} elementi · ${formatSize(context, totalBytes)}",
+                        "${visible.size} elementi · ${formatSize(context, totalBytes)} · +$potentialPoints punti",
                         style = MaterialTheme.typography.bodySmall,
                         color = Palette.TextSecondary,
                     )
