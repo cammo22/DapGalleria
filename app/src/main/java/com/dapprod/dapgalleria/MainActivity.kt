@@ -15,6 +15,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
@@ -32,7 +35,8 @@ import com.dapprod.dapgalleria.data.MediaDeleter
 import com.dapprod.dapgalleria.data.MediaEntry
 import com.dapprod.dapgalleria.data.MediaType
 import com.dapprod.dapgalleria.ui.GalleryViewModel
-import com.dapprod.dapgalleria.ui.screens.CropDialog
+import com.dapprod.dapgalleria.ui.screens.CropScreen
+import com.dapprod.dapgalleria.ui.screens.MediaViewer
 import com.dapprod.dapgalleria.ui.screens.PermissionScreen
 import com.dapprod.dapgalleria.ui.screens.ReviewScreen
 import com.dapprod.dapgalleria.ui.screens.SwipeActions
@@ -83,6 +87,7 @@ private fun AppRoot(deleter: MediaDeleter, vm: GalleryViewModel = viewModel()) {
     var showStats by rememberSaveable { mutableStateOf(false) }
     // la foto in ritaglio resta fissa anche se intanto il mazzo avanza
     var cropEntry by remember { mutableStateOf<MediaEntry?>(null) }
+    var viewerEntry by remember { mutableStateOf<MediaEntry?>(null) }
 
     // se l'utente concede il permesso dalle impostazioni di sistema, al ritorno si aggiorna da solo
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { granted = hasPermissions(context) }
@@ -105,39 +110,46 @@ private fun AppRoot(deleter: MediaDeleter, vm: GalleryViewModel = viewModel()) {
 
     BackHandler(enabled = showReview) { showReview = false }
 
-    if (showReview) {
-        ReviewScreen(
-            pending = state.pending,
-            onBack = { showReview = false },
-            onRestore = vm::restore,
-            onDelete = { items ->
-                val deleted = deleter.delete(items.map { it.uri }).map { it.toString() }.toSet()
-                vm.onDeleted(deleted)
-            },
-        )
-    } else {
-        SwipeScreen(
-            state = state,
-            actions = SwipeActions(
-                onMode = vm::setMode,
-                onDecision = vm::decide,
-                onUndo = vm::undo,
-                onCrop = { cropEntry = state.current?.takeIf { it.type == MediaType.PHOTO } },
-                onOpenStats = { showStats = true },
-                onOpenReview = { showReview = true },
-                onShowReviewed = vm::setShowReviewed,
-                onResetKept = vm::resetKept,
-            ),
-        )
-    }
+    Box(Modifier.fillMaxSize()) {
+        if (showReview) {
+            ReviewScreen(
+                pending = state.pending,
+                onBack = { showReview = false },
+                onRestore = vm::restore,
+                onDelete = { items ->
+                    val deleted = deleter.delete(items.map { it.uri }).map { it.toString() }.toSet()
+                    vm.onDeleted(deleted)
+                },
+            )
+        } else {
+            SwipeScreen(
+                state = state,
+                actions = SwipeActions(
+                    onMode = vm::setMode,
+                    onDecision = vm::decide,
+                    onUndo = vm::undo,
+                    onCrop = { cropEntry = state.current?.takeIf { it.type == MediaType.PHOTO } },
+                    onOpenPhoto = { viewerEntry = it },
+                    onOpenStats = { showStats = true },
+                    onOpenReview = { showReview = true },
+                    onShowReviewed = vm::setShowReviewed,
+                    onResetKept = vm::resetKept,
+                ),
+            )
+        }
 
-    if (showStats) StatsDialog(state.stats, onDismiss = { showStats = false })
+        if (showStats) StatsDialog(state.stats, onDismiss = { showStats = false })
 
-    cropEntry?.let { entry ->
-        CropDialog(
-            entry = entry,
-            onDismiss = { cropEntry = null },
-            onSave = { bitmap, rect -> vm.cropCurrent(bitmap, rect) },
-        )
+        viewerEntry?.let { entry ->
+            MediaViewer(entry = entry, onDismiss = { viewerEntry = null })
+        }
+
+        cropEntry?.let { entry ->
+            CropScreen(
+                entry = entry,
+                onDismiss = { cropEntry = null },
+                onSave = { bitmap, rect -> vm.cropCurrent(bitmap, rect) },
+            )
+        }
     }
 }

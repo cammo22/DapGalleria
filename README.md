@@ -24,7 +24,8 @@ Una foto alla volta: a destra la tieni, a sinistra la mandi nel cestino della se
 
 - **Swipe stile Tinder** su tutte le foto e i video del telefono, **sempre in ordine casuale**: trascina la carta a destra per **tenere**, a sinistra per **eliminare**. Ci sono anche i pulsanti per chi preferisce toccare.
 - **Modalità Foto e modalità Video** con un tocco. Nei video, che partono da soli in loop (muti di default), vedi **durata e tempo trascorso**, puoi **trascinare la barra** per spostarti e usare **−10 s / +10 s**, pausa e audio.
-- **✂️ Ritaglia e tieni** (quarto pulsante, solo foto): ritagli la foto con un editor a maniglie (libero, 1:1, 4:3, 3:4, 16:9, 9:16). La versione ritagliata viene salvata in *Immagini/DapGalleria* e passa come “tenuta”; **l’originale finisce nella lista da eliminare**.
+- **✂️ Ritaglia e tieni** (quarto pulsante, solo foto): ritagli la foto a mano libera, trascinando angoli e lati. La versione ritagliata viene salvata in *Immagini/DapGalleria* e passa come “tenuta”; **l’originale finisce nella lista da eliminare**.
+- **Foto a schermo intero**: tocca una foto per aprirla e **ingrandirla** con il pizzico (o doppio tocco), poi trascina per spostarti.
 - **🏆 Punteggio**: ogni elemento eliminato definitivamente vale **1 punto per ogni MB liberato** (minimo 1). Tocca la coppa in alto per vedere punti, livello (da *Novellino* a *Leggenda del vuoto*) e spazio totale liberato.
 - **Eliminazione in due tempi, senza rischi.** Uno swipe a sinistra *non cancella nulla*: il contenuto viene solo marchiato. Quando hai finito, apri la lista “Da eliminare” e confermi tutto in un colpo.
 - **Revisione veloce della sessione.** Griglia con tutte le miniature marchiate, dimensione totale che libererai, anteprima a schermo intero (video compresi) e filtro Tutti / Foto / Video.
@@ -54,6 +55,7 @@ Una foto alla volta: a destra la tieni, a sinistra la mandi nel cestino della se
 | 🏆 in alto | Punteggio, livello e spazio liberato |
 | 🗑 in alto a destra | Apre la lista “Da eliminare” con il numero di elementi |
 | Tocco su un video | Pausa / riprendi |
+| Tocco su una foto (mazzo o lista) | Schermo intero con zoom a pizzico e doppio tocco |
 | Tocco su una miniatura | Anteprima a schermo intero |
 | ✕ su una miniatura | Toglie quel contenuto dalla lista (resta nella galleria) |
 | **Elimina definitivamente** | Chiede conferma ad Android e cancella i file selezionati |

@@ -204,17 +204,19 @@ fun ReviewScreen(
                 .navigationBarsPadding()
                 .padding(bottom = 88.dp),
         )
-    }
 
-    preview?.let { entry ->
-        MediaPreviewDialog(
-            entry = entry,
-            onDismiss = { preview = null },
-            onRestore = {
-                preview = null
-                onRestore(listOf(entry.key))
-            },
-        )
+        // anteprima a schermo intero (foto con zoom, video con controlli)
+        preview?.let { entry ->
+            MediaViewer(
+                entry = entry,
+                onDismiss = { preview = null },
+                actionLabel = "Togli dalla lista",
+                onAction = {
+                    preview = null
+                    onRestore(listOf(entry.key))
+                },
+            )
+        }
     }
 
     if (confirmDelete) {

@@ -71,6 +71,8 @@ fun MediaCard(
     muted: Boolean,
     onToggleMute: () -> Unit,
     modifier: Modifier = Modifier,
+    /** Tocco su una foto della carta in cima: la apre a schermo intero. */
+    onOpenPhoto: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
     var playing by remember(entry.key) { mutableStateOf(true) }
@@ -93,6 +95,19 @@ fun MediaCard(
             contentScale = ContentScale.Fit,
             modifier = Modifier.fillMaxSize(),
         )
+
+        if (!isVideo && active && onOpenPhoto != null) {
+            // livello trasparente: un tocco apre la foto, il trascinamento resta alla carta
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onOpenPhoto,
+                    ),
+            )
+        }
 
         if (video != null) {
             VideoSurface(video, Modifier.fillMaxSize())
