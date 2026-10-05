@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.dapprod.dapgalleria.data.MediaEntry
 import com.dapprod.dapgalleria.data.MediaType
 import com.dapprod.dapgalleria.ui.Decision
 import com.dapprod.dapgalleria.ui.GalleryUiState
@@ -58,6 +59,7 @@ class SwipeActions(
     val onDecision: (Decision) -> Unit,
     val onUndo: () -> Unit,
     val onCrop: () -> Unit,
+    val onOpenPhoto: (MediaEntry) -> Unit,
     val onOpenStats: () -> Unit,
     val onOpenReview: () -> Unit,
     val onShowReviewed: (Boolean) -> Unit,
@@ -87,6 +89,7 @@ fun SwipeScreen(state: GalleryUiState, actions: SwipeActions) {
                     onDecision = actions.onDecision,
                     onUndo = actions.onUndo,
                     onCrop = actions.onCrop,
+                    onOpenPhoto = actions.onOpenPhoto,
                     modifier = Modifier.fillMaxSize(),
                 )
             }

@@ -118,6 +118,7 @@ fun SwipeDeck(
     onDecision: (Decision) -> Unit,
     onUndo: () -> Unit,
     onCrop: () -> Unit,
+    onOpenPhoto: (MediaEntry) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val top = items[index]
@@ -177,7 +178,13 @@ fun SwipeDeck(
                             rotationZ = o.x / widthPx * 16f
                         },
                 ) {
-                    MediaCard(top, active = true, muted = muted, onToggleMute = { muted = !muted })
+                    MediaCard(
+                        top,
+                        active = true,
+                        muted = muted,
+                        onToggleMute = { muted = !muted },
+                        onOpenPhoto = { onOpenPhoto(top) },
+                    )
 
                     // velo colorato che si intensifica trascinando
                     Box(
