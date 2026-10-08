@@ -15,9 +15,13 @@ class MediaRepository(private val resolver: ContentResolver) {
         (query(MediaType.PHOTO) + query(MediaType.VIDEO)).sortedByDescending { it.dateMillis }
     }
 
-    /** Rilegge una singola foto appena creata (es. dopo un ritaglio). */
-    suspend fun loadPhoto(uri: Uri): MediaEntry? = withContext(Dispatchers.IO) {
-        query(MediaType.PHOTO, "${MediaStore.MediaColumns._ID}=?", arrayOf(ContentUris.parseId(uri).toString())).firstOrNull()
+    /** Rilegge un singolo contenuto appena creato (es. dopo una modifica). */
+    suspend fun loadOne(type: MediaType, uri: Uri): MediaEntry? = withContext(Dispatchers.IO) {
+        try {
+            query(type, "${MediaStore.MediaColumns._ID}=?", arrayOf(ContentUris.parseId(uri).toString())).firstOrNull()
+        } catch (_: Exception) {
+            null
+        }
     }
 
     private fun query(type: MediaType, selection: String? = null, args: Array<String>? = null): List<MediaEntry> {
