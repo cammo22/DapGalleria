@@ -28,6 +28,9 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      - name: Prove del gioco e dei filtri (JUnit)
+        run: ./gradlew testDebugUnitTest --stacktrace
+
       - name: Compila (debug e release)
         # la release usa R8 e la firma: meglio scoprire qui eventuali problemi, prima del merge
         run: ./gradlew assembleDebug assembleRelease --stacktrace

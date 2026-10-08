@@ -9,10 +9,11 @@
 [![Download](https://img.shields.io/github/downloads/cammo22/DapGalleria/total?color=8b5cf6)](https://github.com/cammo22/DapGalleria/releases)
 ![Android 8.0+](https://img.shields.io/badge/Android-8.0%2B-2ee59d?logo=android&logoColor=white)
 ![Kotlin](https://img.shields.io/badge/Kotlin-Jetpack%20Compose-7f52ff?logo=kotlin&logoColor=white)
+[![Changelog](https://img.shields.io/badge/📅_Changelog-mantenuto-ffab00)](CHANGELOG.md)
 [![Licenza MIT](https://img.shields.io/badge/licenza-MIT-lightgrey)](LICENSE)
 
-**Pulisci la galleria del telefono come se fosse un’app di incontri.**<br>
-Una foto alla volta: a destra la tieni, a sinistra la mandi nel cestino della sessione.
+**Pulisci la galleria del telefono come se fosse una sala giochi.**<br>
+Una foto alla volta: a destra la tieni, a sinistra la mandi nel cestino. Combo, carte d’oro, missioni, giri e livelli.
 
 [**⬇️ Scarica l’APK**](https://github.com/cammo22/DapGalleria/releases/latest) · [Come funziona](#-come-funziona) · [Compilare da sorgente](#-compilare-da-sorgente)
 
@@ -20,18 +21,29 @@ Una foto alla volta: a destra la tieni, a sinistra la mandi nel cestino della se
 
 ---
 
+## 🎰 Novità della 2.0: la sala giochi
+
+- **🔁 Il giro**: la barra in alto ti dice quanta galleria hai visto. Quando hai visto *tutte* le foto e *tutti* i video il giro si chiude con la festa e il premio, la galleria si ricarica (anche le foto nuove) e si ricomincia, rimescolato.
+- **🔥 Combo**: decidi in fretta e i punti valgono ×2, ×3… fino a ×5.
+- **✦ Carte d’oro**: una carta su venti vale ×5 e fa piovere oro.
+- **🎯 Missioni del giorno** con il **forziere 🎁**, **giorni di fila** che moltiplicano i punti delle eliminazioni, **24 traguardi** e **9 livelli** fino a 🌌 *Cosmico DaProd*. Tutto nella **Bacheca**.
+- **🎨 Editor foto**: ritaglio a formato, ruota, specchia, luce/contrasto/saturazione/calore/sbiadito/vignetta, 11 filtri (c’è anche *Neon DaProd*), prima/dopo.
+- **🎬 Editor video**: taglio con la striscia dei fotogrammi, ruota, formato 1:1 / 9:16 / 4:5 / 16:9, look, togli l’audio, **foto da un fotogramma**.
+- **✨ Animazioni** curate ovunque, suoni sintetizzati e vibrazioni (si spengono dal menu ⋮).
+
+Tutti i dettagli nel [CHANGELOG](CHANGELOG.md).
+
 ## ✨ Cosa fa
 
 - **Swipe stile Tinder** su tutte le foto e i video del telefono, **sempre in ordine casuale**: trascina la carta a destra per **tenere**, a sinistra per **eliminare**. Ci sono anche i pulsanti per chi preferisce toccare.
 - **Modalità Foto e modalità Video** con un tocco. Nei video, che partono da soli in loop (muti di default), vedi **durata e tempo trascorso**, puoi **trascinare la barra** per spostarti e usare **−10 s / +10 s**, pausa e audio.
-- **✂️ Ritaglia e tieni** (quarto pulsante, solo foto): ritagli la foto a mano libera, trascinando angoli e lati. La versione ritagliata viene salvata in *Immagini/DapGalleria* e passa come “tenuta”; **l’originale finisce nella lista da eliminare**.
+- **✨ Modifica** (quarto pulsante, foto e video): apri l’editor, sistemi e scegli **Sostituisci e tieni** (l’originale finisce nella lista da eliminare) o **Salva copia**. Le modifiche finiscono in *Immagini/DapGalleria* e *Film/DapGalleria*.
 - **Foto a schermo intero**: tocca una foto per aprirla e **ingrandirla** con il pizzico (o doppio tocco), poi trascina per spostarti.
-- **🏆 Punteggio**: ogni elemento eliminato definitivamente vale **1 punto per ogni MB liberato** (minimo 1). Tocca la coppa in alto per vedere punti, livello (da *Novellino* a *Leggenda del vuoto*) e spazio totale liberato.
+- **🏆 Punteggio**: 1 punto a decisione (per la combo, ×5 sulle carte d’oro), 15 a modifica, **1 punto per ogni MB liberato** quando elimini (col bonus dei giorni di fila). Tocca l’anello del livello o i punti per aprire la **Bacheca**.
 - **Eliminazione in due tempi, senza rischi.** Uno swipe a sinistra *non cancella nulla*: il contenuto viene solo marchiato. Quando hai finito, apri la lista “Da eliminare” e confermi tutto in un colpo.
 - **Revisione veloce della sessione.** Griglia con tutte le miniature marchiate, dimensione totale che libererai, anteprima a schermo intero (video compresi) e filtro Tutti / Foto / Video.
 - **Hai swipato per sbaglio?** Tocca la ✕ su una miniatura per **toglierla dalla lista**, oppure usa il pulsante **Annulla** per tornare indietro di uno swipe mentre scorri.
 - **Le decisioni restano salvate.** Se chiudi l’app, i contenuti marchiati sono ancora lì e quelli già tenuti non ti vengono riproposti.
-- Opzione per rivedere anche i contenuti già tenuti.
 - **Privata al 100%**: nessun account, nessuna connessione a internet, niente analytics.
 
 ## 🧭 Come funziona
@@ -51,8 +63,9 @@ Una foto alla volta: a destra la tieni, a sinistra la mandi nel cestino della se
 | Swipe a **destra** o ✓ | **Tieni**: il contenuto non viene più riproposto |
 | Swipe a **sinistra** o ✕ | **Marchia** come da eliminare (non è ancora cancellato) |
 | ↩︎ Annulla | Torna all’ultimo contenuto e annulla la decisione (anche un ritaglio) |
-| ✂️ Ritaglia | Apre l’editor: la foto ritagliata viene tenuta, l’originale va tra i da eliminare |
-| 🏆 in alto | Punteggio, livello e spazio liberato |
+| ✨ Modifica | Editor foto o video: “Sostituisci” tiene la versione nuova e manda l’originale tra i da eliminare |
+| Anello del livello / 🏆 | La Bacheca: livello, missioni, giro, record, traguardi |
+| ⋮ in alto | Suoni, vibrazione, ricomincia il giro |
 | 🗑 in alto a destra | Apre la lista “Da eliminare” con il numero di elementi |
 | Tocco su un video | Pausa / riprendi |
 | Tocco su una foto (mazzo o lista) | Schermo intero con zoom a pizzico e doppio tocco |
@@ -94,7 +107,7 @@ Oppure apri la cartella con Android Studio e premi ▶︎.
 ### Stack
 
 - **Kotlin** + **Jetpack Compose** (Material 3, tema scuro)
-- **Coil** per le miniature (anche dei video) e **Media3 / ExoPlayer** per la riproduzione
+- **Coil** per le miniature (anche dei video), **Media3 / ExoPlayer** per la riproduzione e **Media3 Transformer** per l’editor video
 - **MediaStore** per leggere la galleria e `createDeleteRequest` per l’eliminazione sicura
 - Architettura semplice: `ViewModel` + `StateFlow`
 
@@ -108,13 +121,16 @@ app/src/main/java/com/dapprod/dapgalleria/
 ├── data/
 │   ├── MediaRepository.kt   legge foto e video da MediaStore
 │   ├── MediaDeleter.kt      eliminazione definitiva (Android 8 → 15)
-│   ├── ImageCropper.kt      apre e salva le foto ritagliate
-│   ├── Stats.kt             punteggio e livelli
-│   └── SessionStore.kt      decisioni e impostazioni su disco
+│   ├── ColorMath.kt         matrici colore di filtri e regolazioni (Kotlin puro)
+│   ├── PhotoEditing.kt      apre, gira e salva le foto modificate
+│   ├── VideoEditing.kt      taglio, effetti ed export dei video (Media3 Transformer)
+│   ├── MediaSaver.kt        scrive foto e video nuovi nella galleria
+│   └── SessionStore.kt      decisioni, impostazioni e partita su disco
+├── game/Game.kt             il gioco: combo, carte d’oro, giri, missioni, traguardi, livelli
 └── ui/
-    ├── GalleryViewModel.kt  mazzo, swipe, annulla, lista da eliminare
-    ├── components/          carta, mazzo con gesture, player video
-    └── screens/             schermata swipe, revisione, ritaglio, punteggio, permessi, anteprima
+    ├── GalleryViewModel.kt  mazzo, swipe, annulla, modifiche, giro, eventi del gioco
+    ├── components/          carta, mazzo, player, coriandoli, suoni, HUD dei premi
+    └── screens/             swipe, da eliminare, bacheca, fine giro, editor foto e video, permessi
 tools/                       script che generano icona e banner
 ```
 
@@ -157,7 +173,8 @@ base64 -w0 dapgalleria.jks      # incolla l’output in ANDROID_KEYSTORE_BASE64
 
 - [ ] Filtro per album / cartella
 - [ ] Widget “ricordami di fare ordine”
-- [ ] Taglio dei video
+- [x] Taglio dei video (2.0)
+- [ ] Classifica dei giri e statistiche per mese
 - [ ] Gesto verso l’alto per condividere o spostare in un album
 - [ ] Tema chiaro e traduzione in inglese
 

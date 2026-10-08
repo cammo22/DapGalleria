@@ -2,11 +2,13 @@ package com.dapprod.dapgalleria.ui.components
 
 import android.graphics.Color as AndroidColor
 import android.net.Uri
+import android.view.LayoutInflater
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -25,6 +27,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
+import com.dapprod.dapgalleria.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 
@@ -34,6 +37,10 @@ class VideoPlayerState(val player: ExoPlayer, private val fallbackDurationMs: Lo
     var positionMs by mutableLongStateOf(0L)
         internal set
     var durationMs by mutableLongStateOf(fallbackDurationMs)
+        internal set
+
+    /** Larghezza / altezza del video come si vede (0 finché non arriva il primo fotogramma). */
+    var aspect by mutableFloatStateOf(0f)
         internal set
 
     fun seekTo(ms: Long) {
@@ -50,6 +57,12 @@ class VideoPlayerState(val player: ExoPlayer, private val fallbackDurationMs: Lo
         val duration = player.duration
         if (duration > 0) durationMs = duration
         positionMs = player.currentPosition.coerceAtLeast(0L)
+        val size = player.videoSize
+        if (size.width > 0 && size.height > 0) {
+            val w = size.width * size.pixelWidthHeightRatio
+            val h = size.height.toFloat()
+            aspect = if (size.unappliedRotationDegrees % 180 != 0) h / w else w / h
+        }
     }
 }
 
@@ -108,14 +121,22 @@ fun rememberVideoPlayer(uri: Uri, durationHintMs: Long, playing: Boolean, muted:
     return state
 }
 
-/** La superficie video. Con [showController] usa i controlli standard di Media3 (anteprima a schermo intero). */
+/**
+ * La superficie video. Con [showController] usa i controlli standard di Media3 (anteprima a schermo intero).
+ * Con [texture] usa una TextureView: si può girare e colorare da Compose (editor).
+ */
 @androidx.annotation.OptIn(UnstableApi::class)
 @Composable
-fun VideoSurface(state: VideoPlayerState, modifier: Modifier = Modifier, showController: Boolean = false) {
+fun VideoSurface(state: VideoPlayerState, modifier: Modifier = Modifier, showController: Boolean = false, texture: Boolean = false) {
     AndroidView(
         modifier = modifier,
         factory = { ctx ->
-            PlayerView(ctx).apply {
+            val view = if (texture) {
+                LayoutInflater.from(ctx).inflate(R.layout.player_texture, null) as PlayerView
+            } else {
+                PlayerView(ctx)
+            }
+            view.apply {
                 useController = showController
                 resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
                 // trasparente: finché non arriva il primo fotogramma resta visibile la miniatura sotto

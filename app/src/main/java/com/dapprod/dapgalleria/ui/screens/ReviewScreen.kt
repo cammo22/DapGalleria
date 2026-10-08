@@ -60,7 +60,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.dapprod.dapgalleria.data.MediaEntry
 import com.dapprod.dapgalleria.data.MediaType
-import com.dapprod.dapgalleria.data.Stats
+import com.dapprod.dapgalleria.game.GameEngine
 import com.dapprod.dapgalleria.ui.DeleteResult
 import com.dapprod.dapgalleria.ui.components.formatDuration
 import com.dapprod.dapgalleria.ui.components.formatSize
@@ -100,7 +100,7 @@ fun ReviewScreen(
         }
     }
     val totalBytes = remember(visible) { visible.sumOf { it.sizeBytes } }
-    val potentialPoints = remember(visible) { visible.sumOf { Stats.pointsFor(it.sizeBytes) } }
+    val potentialPoints = remember(visible) { visible.sumOf { GameEngine.pointsForDelete(it.sizeBytes) } }
 
     fun startDelete() {
         val toDelete = visible
@@ -108,21 +108,12 @@ fun ReviewScreen(
             deleting = true
             val result = onDelete(toDelete)
             deleting = false
-            snackbar.showSnackbar(
-                if (result.deletedKeys.isEmpty()) {
-                    "Nessun elemento eliminato"
-                } else {
-                    "Eliminati ${result.deletedKeys.size} elementi · liberati ${formatSize(context, result.freedBytes)} · +${result.points} punti"
-                },
-            )
+            // se è andata, la festa la fa il gioco; qui si avvisa solo se non è stato eliminato niente
+            if (result.deletedKeys.isEmpty()) snackbar.showSnackbar("Nessun elemento eliminato")
         }
     }
 
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(Palette.Background),
-    ) {
+    Box(Modifier.fillMaxSize()) {
         Column(
             Modifier
                 .fillMaxSize()
@@ -134,9 +125,9 @@ fun ReviewScreen(
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Indietro", tint = Palette.TextPrimary)
                 }
                 Column(Modifier.weight(1f)) {
-                    Text("Da eliminare", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Text("Da eliminare", style = MaterialTheme.typography.titleLarge.copy(brush = com.dapprod.dapgalleria.ui.theme.BrandGradient), fontWeight = FontWeight.Black)
                     Text(
-                        "${visible.size} elementi · ${formatSize(context, totalBytes)} · +$potentialPoints punti",
+                        "${visible.size} elementi · ${formatSize(context, totalBytes)} · fino a +$potentialPoints punti",
                         style = MaterialTheme.typography.bodySmall,
                         color = Palette.TextSecondary,
                     )
@@ -160,7 +151,12 @@ fun ReviewScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     items(visible, key = { it.key }) { entry ->
-                        PendingTile(entry, onOpen = { preview = entry }, onRemove = { onRestore(listOf(entry.key)) })
+                        PendingTile(
+                            entry,
+                            onOpen = { preview = entry },
+                            onRemove = { onRestore(listOf(entry.key)) },
+                            modifier = Modifier.animateItem(),
+                        )
                     }
                 }
             }
@@ -169,7 +165,7 @@ fun ReviewScreen(
                 Row(
                     Modifier
                         .fillMaxWidth()
-                        .background(Palette.Surface)
+                        .background(Palette.Surface.copy(alpha = 0.95f))
                         .padding(16.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -233,9 +229,9 @@ fun ReviewScreen(
 }
 
 @Composable
-private fun PendingTile(entry: MediaEntry, onOpen: () -> Unit, onRemove: () -> Unit) {
+private fun PendingTile(entry: MediaEntry, onOpen: () -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
     Box(
-        Modifier
+        modifier
             .aspectRatio(1f)
             .clip(RoundedCornerShape(16.dp))
             .background(Palette.SurfaceHigh)

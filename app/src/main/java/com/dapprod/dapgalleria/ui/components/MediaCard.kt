@@ -1,6 +1,7 @@
 package com.dapprod.dapgalleria.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -39,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -46,6 +48,7 @@ import coil.request.ImageRequest
 import coil.request.videoFrameMillis
 import com.dapprod.dapgalleria.data.MediaEntry
 import com.dapprod.dapgalleria.data.MediaType
+import com.dapprod.dapgalleria.ui.theme.GoldGradient
 import com.dapprod.dapgalleria.ui.theme.Palette
 
 /** Richiesta Coil per un'immagine o per un fotogramma di video. */
@@ -73,6 +76,8 @@ fun MediaCard(
     modifier: Modifier = Modifier,
     /** Tocco su una foto della carta in cima: la apre a schermo intero. */
     onOpenPhoto: (() -> Unit)? = null,
+    /** Carta d'oro: vale ×5 ed è vestita a festa. */
+    golden: Boolean = false,
 ) {
     val context = LocalContext.current
     var playing by remember(entry.key) { mutableStateOf(true) }
@@ -87,7 +92,14 @@ fun MediaCard(
         modifier
             .fillMaxSize()
             .clip(RoundedCornerShape(28.dp))
-            .background(Palette.CardBackground),
+            .background(Palette.CardBackground)
+            .then(
+                if (golden) {
+                    Modifier.shimmerBorder(listOf(Palette.Gold, Color.White, Palette.GoldDeep, Palette.Gold), 5.dp, 28.dp)
+                } else {
+                    Modifier.border(1.dp, Color.White.copy(alpha = 0.08f), RoundedCornerShape(28.dp))
+                },
+            ),
     ) {
         AsyncImage(
             model = rememberMediaRequest(entry),
@@ -141,6 +153,20 @@ fun MediaCard(
                     .align(Alignment.Center)
                     .size(64.dp),
             )
+        }
+
+        if (golden) {
+            Row(
+                Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 14.dp)
+                    .clip(RoundedCornerShape(50))
+                    .background(GoldGradient)
+                    .padding(horizontal = 14.dp, vertical = 5.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("✦ CARTA D'ORO · ×5", color = Color(0xFF2A1A00), fontWeight = FontWeight.Black, style = MaterialTheme.typography.labelLarge)
+            }
         }
 
         // informazioni sul contenuto (+ controlli del video)
@@ -206,7 +232,7 @@ private fun VideoControls(
                 .padding(horizontal = 8.dp),
             colors = SliderDefaults.colors(
                 thumbColor = Color.White,
-                activeTrackColor = Palette.Pink,
+                activeTrackColor = Palette.Magenta,
                 inactiveTrackColor = Color.White.copy(alpha = 0.3f),
             ),
         )
