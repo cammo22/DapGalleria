@@ -79,8 +79,8 @@ import com.dapprod.dapgalleria.ui.theme.Palette
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 
-private class FloatItem(val id: Long, val text: String, val color: Color, val x: Float, val y: Float, val big: Boolean)
-private class ToastItem(val id: Long, val title: String, val subtitle: String, val reward: String?, val gold: Boolean)
+internal class FloatItem(val id: Long, val text: String, val color: Color, val x: Float, val y: Float, val big: Boolean)
+internal class ToastItem(val id: Long, val title: String, val subtitle: String, val reward: String?, val gold: Boolean)
 
 /** Quello che sta sopra a tutto: punti che volano, avvisi in alto, festa delle eliminazioni, livello nuovo. */
 @Stable
