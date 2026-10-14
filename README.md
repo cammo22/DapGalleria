@@ -11,6 +11,7 @@
 ![Kotlin](https://img.shields.io/badge/Kotlin-Jetpack%20Compose-7f52ff?logo=kotlin&logoColor=white)
 [![Changelog](https://img.shields.io/badge/📅_Changelog-mantenuto-ffab00)](CHANGELOG.md)
 [![Licenza MIT](https://img.shields.io/badge/licenza-MIT-lightgrey)](LICENSE)
+[![Discord](https://img.shields.io/badge/Discord-DaProd-5865F2?logo=discord&logoColor=white)](https://discord.gg/Njs52aacwq)
 
 **Pulisci la galleria del telefono come se fosse una sala giochi.**<br>
 Una foto alla volta: a destra la tieni, a sinistra la mandi nel cestino. Combo, carte d’oro, missioni, giri e livelli.
