@@ -1,3 +1,8 @@
+<!-- discord-card -->
+<p align="center">
+  <a href="https://discord.gg/Njs52aacwq"><img src=".github/discord-card.svg" alt="Entra nella community DaProd su Discord" width="720"></a>
+</p>
+
 <div align="center">
 
 <img src="docs/banner.png" alt="DapGalleria – scorri, tieni, elimina" width="100%">
@@ -184,14 +189,3 @@ I contributi sono benvenuti: apri una issue o una pull request.
 ## 📄 Licenza
 
 Distribuito con licenza [MIT](LICENSE).
-
----
-
-<!-- discord-card -->
-## 💬 Community
-
-<p align="center">
-  <a href="https://discord.gg/Njs52aacwq"><img src=".github/discord-card.svg" alt="Entra nella community DaProd su Discord" width="720"></a>
-</p>
-
-Domande, idee, bug o solo voglia di chiacchierare? Entra nel **[Discord di DaProd](https://discord.gg/Njs52aacwq)**: ogni app ha la sua stanza e le nuove versioni arrivano in automatico.
