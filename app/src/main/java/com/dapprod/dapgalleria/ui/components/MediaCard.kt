@@ -21,6 +21,7 @@ import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Forward10
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Replay10
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -78,6 +79,8 @@ fun MediaCard(
     onOpenPhoto: (() -> Unit)? = null,
     /** Carta d'oro: vale ×5 ed è vestita a festa. */
     golden: Boolean = false,
+    /** Contenuto con la stella: compare il bollino in alto a sinistra. */
+    favorite: Boolean = false,
 ) {
     val context = LocalContext.current
     var playing by remember(entry.key) { mutableStateOf(true) }
@@ -166,6 +169,20 @@ fun MediaCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text("✦ CARTA D'ORO · ×5", color = Color(0xFF2A1A00), fontWeight = FontWeight.Black, style = MaterialTheme.typography.labelLarge)
+            }
+        }
+
+        if (favorite) {
+            Box(
+                Modifier
+                    .align(Alignment.TopStart)
+                    .padding(14.dp)
+                    .size(34.dp)
+                    .clip(CircleShape)
+                    .background(Color.Black.copy(alpha = 0.55f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(Icons.Filled.Star, contentDescription = "Preferito", tint = Palette.Gold, modifier = Modifier.size(22.dp))
             }
         }
 

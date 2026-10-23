@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,6 +42,7 @@ import com.dapprod.dapgalleria.data.MediaType
 import com.dapprod.dapgalleria.ui.components.VideoSurface
 import com.dapprod.dapgalleria.ui.components.describe
 import com.dapprod.dapgalleria.ui.components.rememberVideoPlayer
+import com.dapprod.dapgalleria.ui.theme.Palette
 
 private const val MAX_ZOOM = 6f
 
@@ -54,6 +57,9 @@ fun MediaViewer(
     onDismiss: () -> Unit,
     actionLabel: String? = null,
     onAction: () -> Unit = {},
+    /** Se c'è [onToggleFavorite] in alto a sinistra compare la stella dei preferiti. */
+    isFavorite: Boolean = false,
+    onToggleFavorite: (() -> Unit)? = null,
 ) {
     BackHandler(onBack = onDismiss)
     val context = LocalContext.current
@@ -80,6 +86,22 @@ fun MediaViewer(
                 .padding(8.dp),
         ) {
             Icon(Icons.Filled.Close, contentDescription = "Chiudi", tint = Color.White)
+        }
+
+        if (onToggleFavorite != null) {
+            IconButton(
+                onClick = onToggleFavorite,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .statusBarsPadding()
+                    .padding(8.dp),
+            ) {
+                Icon(
+                    if (isFavorite) Icons.Filled.Star else Icons.Filled.StarBorder,
+                    contentDescription = if (isFavorite) "Togli dai preferiti" else "Aggiungi ai preferiti",
+                    tint = Palette.Gold,
+                )
+            }
         }
 
         Column(

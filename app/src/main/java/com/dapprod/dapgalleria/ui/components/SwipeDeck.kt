@@ -27,6 +27,8 @@ import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.AutoFixHigh
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -154,6 +156,8 @@ fun SwipeDeck(
     onDecision: (Decision) -> Unit,
     onUndo: () -> Unit,
     onEdit: () -> Unit,
+    isFavorite: (MediaEntry) -> Boolean,
+    onToggleFavorite: () -> Unit,
     onOpenPhoto: (MediaEntry) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -267,6 +271,7 @@ fun SwipeDeck(
                         onToggleMute = { muted = !muted },
                         onOpenPhoto = { onOpenPhoto(top) },
                         golden = golden,
+                        favorite = isFavorite(top),
                     )
 
                     // velo colorato che si intensifica trascinando
@@ -326,6 +331,17 @@ fun SwipeDeck(
                 Icons.Filled.Check, "Tieni", Palette.Keep, 70.dp,
                 lean = { max(swipe.progress, 0f) },
             ) { swipe.fling(Decision.KEEP) }
+            // stella: il contenuto finisce nei preferiti (non decide niente, la carta resta qui)
+            val starred = isFavorite(top)
+            ActionButton(
+                if (starred) Icons.Filled.Star else Icons.Filled.StarBorder,
+                if (starred) "Togli dai preferiti" else "Aggiungi ai preferiti",
+                Palette.Gold, 50.dp,
+                filled = starred,
+            ) {
+                feedback?.star(!starred)
+                onToggleFavorite()
+            }
             // modifica (foto e video): la versione modificata viene tenuta
             ActionButton(Icons.Filled.AutoFixHigh, "Modifica", Palette.Cyan, 50.dp, onClick = onEdit)
         }
@@ -364,6 +380,7 @@ private fun ActionButton(
     size: Dp,
     enabled: Boolean = true,
     lean: () -> Float = { 0f },
+    filled: Boolean = false,
     onClick: () -> Unit,
 ) {
     val interaction = remember { MutableInteractionSource() }
@@ -383,7 +400,7 @@ private fun ActionButton(
             .drawBehind {
                 val l = lean()
                 drawCircle(Palette.Surface)
-                drawCircle(tint.copy(alpha = 0.10f + 0.38f * l))
+                drawCircle(tint.copy(alpha = (if (filled) 0.28f else 0.10f) + 0.38f * l))
             }
             .border(2.5.dp, tint, CircleShape)
             .clickable(interactionSource = interaction, indication = null, enabled = enabled, onClick = onClick),

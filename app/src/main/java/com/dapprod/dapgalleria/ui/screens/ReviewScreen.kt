@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -78,6 +79,8 @@ private enum class ReviewFilter(val label: String) { ALL("Tutti"), PHOTOS("Foto"
 @Composable
 fun ReviewScreen(
     pending: List<MediaEntry>,
+    /** Quelli con la stella: si segnalano, così non ne elimini uno per sbaglio. */
+    favoriteKeys: Set<String>,
     onBack: () -> Unit,
     onRestore: (Collection<String>) -> Unit,
     /** Elimina davvero i file; ritorna chi è stato eliminato, lo spazio liberato e i punti guadagnati. */
@@ -153,6 +156,7 @@ fun ReviewScreen(
                     items(visible, key = { it.key }) { entry ->
                         PendingTile(
                             entry,
+                            favorite = entry.key in favoriteKeys,
                             onOpen = { preview = entry },
                             onRemove = { onRestore(listOf(entry.key)) },
                             modifier = Modifier.animateItem(),
@@ -229,7 +233,7 @@ fun ReviewScreen(
 }
 
 @Composable
-private fun PendingTile(entry: MediaEntry, onOpen: () -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
+private fun PendingTile(entry: MediaEntry, favorite: Boolean, onOpen: () -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
     Box(
         modifier
             .aspectRatio(1f)
@@ -256,6 +260,17 @@ private fun PendingTile(entry: MediaEntry, onOpen: () -> Unit, onRemove: () -> U
                 Icon(Icons.Filled.PlayArrow, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
                 Text(formatDuration(entry.durationMs), color = Color.White, style = MaterialTheme.typography.labelSmall)
             }
+        }
+        if (favorite) {
+            Icon(
+                Icons.Filled.Star,
+                contentDescription = "Preferito",
+                tint = Palette.Gold,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(6.dp)
+                    .size(20.dp),
+            )
         }
         // toglie l'elemento dalla lista: resta nella galleria
         Box(

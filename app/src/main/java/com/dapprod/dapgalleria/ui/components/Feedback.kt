@@ -163,6 +163,13 @@ class Feedback(private val view: View, private val sound: SoundFx?) {
         sfx(Sfx.UNDO)
     }
 
+    /** Stella messa (tintinnio) o tolta (tocco leggero). */
+    fun star(added: Boolean) {
+        val confirm = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && added
+        haptic(if (confirm) HapticFeedbackConstants.CONFIRM else HapticFeedbackConstants.KEYBOARD_TAP)
+        if (added) sfx(Sfx.COIN, pitch = 1.3f, volume = 0.5f) else sfx(Sfx.UNDO, volume = 0.4f)
+    }
+
     fun golden() {
         haptic(HapticFeedbackConstants.LONG_PRESS)
         sfx(Sfx.COIN, volume = 0.6f)

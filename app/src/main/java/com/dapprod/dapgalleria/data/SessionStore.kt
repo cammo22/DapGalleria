@@ -17,10 +17,15 @@ class SessionStore(context: Context) {
     fun loadPending(): List<String> =
         prefs.getString(PENDING, "").orEmpty().split('\n').filter { it.isNotEmpty() }
 
-    fun save(kept: Set<String>, pending: List<String>) {
+    /** Preferiti (⭐), in ordine di aggiunta. Non si svuotano a fine giro: restano finché non li togli. */
+    fun loadFavorites(): List<String> =
+        prefs.getString(FAVORITES, "").orEmpty().split('\n').filter { it.isNotEmpty() }
+
+    fun save(kept: Set<String>, pending: List<String>, favorites: List<String>) {
         prefs.edit {
             putStringSet(KEPT, HashSet(kept))
             putString(PENDING, pending.joinToString("\n"))
+            putString(FAVORITES, favorites.joinToString("\n"))
         }
     }
 
@@ -122,6 +127,7 @@ class SessionStore(context: Context) {
     private companion object {
         const val KEPT = "kept"
         const val PENDING = "pending"
+        const val FAVORITES = "favorites"
         const val PHOTO_MODE = "photo_mode"
         const val SOUND = "sound_on"
         const val HAPTICS = "haptics_on"

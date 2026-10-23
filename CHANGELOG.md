@@ -4,6 +4,24 @@ Tutte le versioni notevoli dell'app. Le date sono in formato AAAA-MM-GG.
 Ogni versione pubblicata ha la sua [release GitHub](https://github.com/cammo22/DapGalleria/releases) con l'APK firmato:
 si installa sopra la versione di prima, senza perdere punti e decisioni.
 
+## [2.1.0] — 2026-10-23 · I preferiti ⭐
+
+### ⭐ Preferiti
+- **La stella**: su ogni carta c'è il pulsante ⭐ (tra Tieni e Modifica). Un tocco mette la stella, un altro la toglie.
+  La carta resta dov'è: la stella non è uno swipe, non dà punti e non cambia il giro. Sulla carta compare il bollino.
+- **La sezione Preferiti**: il pulsante ⭐ accanto a Foto/Video (col numero) apre la griglia dei contenuti con la
+  stella, gli ultimi aggiunti per primi, con i filtri Tutti / Foto / Video. Un tocco apre il contenuto a schermo
+  intero, la stella sulla miniatura lo toglie dai preferiti (resta nella galleria).
+- Anche nel visualizzatore a schermo intero c'è la stella, in alto a sinistra.
+- I preferiti **non si svuotano a fine giro** e si salvano sul telefono. Se un preferito è tra i da eliminare, nella
+  lista compare la stella per non cancellarlo per sbaglio; se lo elimini davvero, esce anche dai preferiti.
+
+### 🔑 Aggiornare senza reinstallare
+- Anche l'APK **debug** della CI ora è firmato con la stessa chiave pubblica delle release e prende
+  `versionName`/`versionCode` dal file `VERSION`: prima aveva una chiave diversa e `versionCode` 1, quindi Android
+  rifiutava di installarlo sopra una release. Ora debug e release si aggiornano a vicenda.
+- Le release firmate dalla 2.0.0 in poi si installano già sopra la versione precedente, senza perdere punti e decisioni.
+
 ## [2.0.0] — 2026-10-08 · La sala giochi della galleria 🎰
 
 Il grande aggiornamento: «l'app mi piace ma è ancora troppo semplice». Ora fare ordine è un gioco che non vuoi

@@ -14,6 +14,9 @@ App Android (Kotlin + Jetpack Compose) per ripulire la galleria con lo swipe, fa
   (`GameEvent` → `GameHud` in `ui/components/RewardLayer.kt`). Annullare toglie i punti (`undoSwipe`).
 - **Il giro**: finisce quando foto e video sono tutti "visti" (tenuti o da eliminare) e nel giro si è valutato
   qualcosa; allora `kept` si svuota, la galleria si ricarica e si ricomincia (`GalleryViewModel.checkRoundComplete`).
+- **Preferiti** (⭐): `GalleryViewModel.toggleFavorite`, chiavi salvate da `SessionStore` (non si svuotano a fine giro,
+  escono quando il file viene eliminato). Sezione in `ui/screens/FavoritesScreen.kt` (`Page.FAVORITES` in `MainActivity`).
+- **Firma**: release e debug usano la stessa chiave (`keystore/`) e la versione viene da `VERSION`, così ogni APK si installa sopra l'altro.
 - **Editor**: foto in `ui/screens/PhotoEditorScreen.kt` + `data/PhotoEditing.kt` (matrice colore uguale in anteprima e
   salvataggio); video in `ui/screens/VideoEditorScreen.kt` + `data/VideoEditing.kt` (Media3 Transformer; Media3
   ruota in senso antiorario). Il salvataggio passa da `data/MediaSaver.kt`. "Sostituisci" = l'originale va tra i da eliminare.

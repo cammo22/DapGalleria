@@ -69,6 +69,8 @@ Tutti i dettagli nel [CHANGELOG](CHANGELOG.md).
 | Swipe a **destra** o ✓ | **Tieni**: il contenuto non viene più riproposto |
 | Swipe a **sinistra** o ✕ | **Marchia** come da eliminare (non è ancora cancellato) |
 | ↩︎ Annulla | Torna all’ultimo contenuto e annulla la decisione (anche un ritaglio) |
+| ⭐ Stella | Mette (o toglie) il contenuto tra i **preferiti**, senza decidere niente: la carta resta dov’è |
+| ⭐ accanto a Foto/Video | Apre la sezione **Preferiti**: griglia con filtri Tutti / Foto / Video, la stella sulla miniatura li toglie |
 | ✨ Modifica | Editor foto o video: “Sostituisci” tiene la versione nuova e manda l’originale tra i da eliminare |
 | Anello del livello / 🏆 | La Bacheca: livello, missioni, giro, record, traguardi |
 | ⋮ in alto | Suoni, vibrazione, ricomincia il giro |
@@ -150,7 +152,7 @@ La release si pubblica da sola, in uno di questi modi:
 - **Con un tag**: `git tag v1.1.0 && git push origin v1.1.0`.
 - **A mano**: *Actions → Release → Run workflow*.
 
-Il numero di versione dell’app (`versionName` / `versionCode`) è ricavato dal tag. Se la release esiste già, il workflow non fa nulla.
+Il numero di versione dell’app (`versionName` / `versionCode`) è ricavato dal tag. Per le compilazioni normali (e per l’APK debug della CI) si legge dal file [`VERSION`](VERSION), con la firma uguale a quella delle release: così si aggiorna sempre sopra. Se la release esiste già, il workflow non fa nulla.
 
 ### Firma e aggiornamenti
 
