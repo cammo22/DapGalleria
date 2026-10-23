@@ -58,6 +58,7 @@ import com.dapprod.dapgalleria.ui.components.NeonBackdrop
 import com.dapprod.dapgalleria.ui.components.SoundFx
 import com.dapprod.dapgalleria.ui.components.rememberConfettiState
 import com.dapprod.dapgalleria.ui.components.rememberHudState
+import com.dapprod.dapgalleria.ui.screens.FavoritesScreen
 import com.dapprod.dapgalleria.ui.screens.MediaViewer
 import com.dapprod.dapgalleria.ui.screens.PermissionScreen
 import com.dapprod.dapgalleria.ui.screens.PhotoEditorScreen
@@ -101,7 +102,7 @@ private fun hasPermissions(context: Context): Boolean = requiredPermissions().al
     ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
 }
 
-private enum class Page { DECK, REVIEW, TROPHIES }
+private enum class Page { DECK, REVIEW, TROPHIES, FAVORITES }
 
 @Composable
 private fun AppRoot(deleter: MediaDeleter, vm: GalleryViewModel = viewModel()) {
@@ -167,6 +168,7 @@ private fun AppRoot(deleter: MediaDeleter, vm: GalleryViewModel = viewModel()) {
                 when (p) {
                     Page.REVIEW -> ReviewScreen(
                         pending = state.pending,
+                        favoriteKeys = state.favoriteKeys,
                         onBack = { page = Page.DECK },
                         onRestore = vm::restore,
                         onDelete = { items ->
@@ -175,6 +177,12 @@ private fun AppRoot(deleter: MediaDeleter, vm: GalleryViewModel = viewModel()) {
                         },
                     )
                     Page.TROPHIES -> TrophyScreen(state, onBack = { page = Page.DECK })
+                    Page.FAVORITES -> FavoritesScreen(
+                        favorites = state.favorites,
+                        favoriteKeys = state.favoriteKeys,
+                        onBack = { page = Page.DECK },
+                        onToggleFavorite = vm::toggleFavorite,
+                    )
                     Page.DECK -> SwipeScreen(
                         state = state,
                         actions = SwipeActions(
@@ -182,6 +190,8 @@ private fun AppRoot(deleter: MediaDeleter, vm: GalleryViewModel = viewModel()) {
                             onDecision = vm::decide,
                             onUndo = vm::undo,
                             onEdit = { editEntry = state.current },
+                            onToggleFavorite = { state.current?.let(vm::toggleFavorite) },
+                            onOpenFavorites = { page = Page.FAVORITES },
                             onOpenPhoto = { viewerEntry = it },
                             onOpenTrophies = { page = Page.TROPHIES },
                             onOpenReview = { page = Page.REVIEW },
@@ -213,7 +223,12 @@ private fun AppRoot(deleter: MediaDeleter, vm: GalleryViewModel = viewModel()) {
             }
 
             viewerEntry?.let { entry ->
-                MediaViewer(entry = entry, onDismiss = { viewerEntry = null })
+                MediaViewer(
+                    entry = entry,
+                    onDismiss = { viewerEntry = null },
+                    isFavorite = entry.key in state.favoriteKeys,
+                    onToggleFavorite = { vm.toggleFavorite(entry) },
+                )
             }
 
             AnimatedVisibility(

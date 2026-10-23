@@ -36,11 +36,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -89,6 +91,8 @@ class SwipeActions(
     val onDecision: (Decision) -> Unit,
     val onUndo: () -> Unit,
     val onEdit: () -> Unit,
+    val onToggleFavorite: () -> Unit,
+    val onOpenFavorites: () -> Unit,
     val onOpenPhoto: (MediaEntry) -> Unit,
     val onOpenTrophies: () -> Unit,
     val onOpenReview: () -> Unit,
@@ -107,7 +111,16 @@ fun SwipeScreen(state: GalleryUiState, actions: SwipeActions) {
     ) {
         TopBar(state, actions)
         RoundBar(state, onClick = actions.onOpenTrophies)
-        ModeToggle(state, actions.onMode)
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            ModeToggle(state, actions.onMode, Modifier.weight(1f))
+            Spacer(Modifier.width(10.dp))
+            FavoritesButton(state.favorites.size, onClick = actions.onOpenFavorites)
+        }
         Box(Modifier.weight(1f).fillMaxWidth()) {
             val current = state.current
             AnimatedContent(
@@ -132,6 +145,8 @@ fun SwipeScreen(state: GalleryUiState, actions: SwipeActions) {
                             onDecision = actions.onDecision,
                             onUndo = actions.onUndo,
                             onEdit = actions.onEdit,
+                            isFavorite = state::isFavorite,
+                            onToggleFavorite = actions.onToggleFavorite,
                             onOpenPhoto = actions.onOpenPhoto,
                             modifier = Modifier.fillMaxSize(),
                         )
@@ -342,12 +357,10 @@ private fun RoundBar(state: GalleryUiState, onClick: () -> Unit) {
 }
 
 @Composable
-private fun ModeToggle(state: GalleryUiState, onMode: (MediaType) -> Unit) {
+private fun ModeToggle(state: GalleryUiState, onMode: (MediaType) -> Unit, modifier: Modifier = Modifier) {
     val mode = state.mode
     BoxWithConstraints(
-        Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 8.dp)
+        modifier
             .clip(RoundedCornerShape(50))
             .background(Palette.Surface)
             .border(1.dp, Palette.Outline, RoundedCornerShape(50))
@@ -371,6 +384,32 @@ private fun ModeToggle(state: GalleryUiState, onMode: (MediaType) -> Unit) {
         Row(Modifier.fillMaxWidth()) {
             ModeTab("Foto", state.photosLeft, Icons.Filled.PhotoLibrary, mode == MediaType.PHOTO, { onMode(MediaType.PHOTO) }, Modifier.weight(1f))
             ModeTab("Video", state.videosLeft, Icons.Filled.VideoLibrary, mode == MediaType.VIDEO, { onMode(MediaType.VIDEO) }, Modifier.weight(1f))
+        }
+    }
+}
+
+/** Porta ai preferiti (⭐); il numero dice quanti ce ne sono. */
+@Composable
+private fun FavoritesButton(count: Int, onClick: () -> Unit) {
+    val interaction = remember { MutableInteractionSource() }
+    BadgedBox(
+        badge = {
+            if (count > 0) {
+                Badge(containerColor = Palette.Gold, contentColor = Color(0xFF2A1A00)) { Text(formatThousands(count.toLong())) }
+            }
+        },
+    ) {
+        Box(
+            Modifier
+                .size(50.dp)
+                .pressBounce(interaction)
+                .clip(CircleShape)
+                .background(Palette.Surface)
+                .border(1.dp, Palette.Gold.copy(alpha = 0.6f), CircleShape)
+                .clickable(interactionSource = interaction, indication = null, onClick = onClick),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(Icons.Filled.Star, contentDescription = "Preferiti", tint = Palette.Gold, modifier = Modifier.size(26.dp))
         }
     }
 }

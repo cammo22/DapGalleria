@@ -4,9 +4,16 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
-// La CI passa -PversionName=1.2.3 e -PversionCode=N partendo dal tag della release.
-val appVersionName = providers.gradleProperty("versionName").orElse("1.0.0").get()
-val appVersionCode = providers.gradleProperty("versionCode").orElse("1").get().toInt()
+// La CI delle release passa -PversionName=1.2.3 e -PversionCode=N partendo dal tag.
+// Senza, si usa il file VERSION (stessa formula della CI: MAJOR*10000+MINOR*100+PATCH): cosi' anche l'APK debug
+// scaricato dalla CI ha la versione giusta e Android lo installa sopra quello gia' presente, senza disinstallare.
+val versionFile: String = file("$rootDir/VERSION").takeIf { it.exists() }?.readText()?.trim().orEmpty().ifEmpty { "1.0.0" }
+val fileVersionCode: Int = versionFile.substringBefore('-').split('.').let { p ->
+    fun part(i: Int) = p.getOrNull(i)?.toIntOrNull() ?: 0
+    part(0) * 10000 + part(1) * 100 + part(2)
+}
+val appVersionName = providers.gradleProperty("versionName").orElse(versionFile).get()
+val appVersionCode = providers.gradleProperty("versionCode").map { it.toInt() }.orElse(fileVersionCode).get()
 
 // Firma della release.
 // Di default si usa keystore/dapgalleria-public.jks, una chiave VOLUTAMENTE PUBBLICA inclusa nel repo
@@ -38,6 +45,10 @@ android {
     }
 
     buildTypes {
+        debug {
+            // stessa firma della release: debug e release si aggiornano a vicenda senza disinstallare
+            signingConfig = signingConfigs.getByName("release")
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true

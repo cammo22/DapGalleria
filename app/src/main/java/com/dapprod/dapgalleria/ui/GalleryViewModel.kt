@@ -41,6 +41,9 @@ data class GalleryUiState(
     val index: Int = 0,
     /** Contenuti marchiati come "da eliminare", i più recenti per primi. */
     val pending: List<MediaEntry> = emptyList(),
+    /** Contenuti con la stella ⭐, gli ultimi aggiunti per primi. */
+    val favorites: List<MediaEntry> = emptyList(),
+    val favoriteKeys: Set<String> = emptySet(),
     val canUndo: Boolean = false,
     val profile: Profile = Profile(),
     /** La combo in corso e quando scade (System.currentTimeMillis). */
@@ -65,6 +68,8 @@ data class GalleryUiState(
     val pendingBytes: Long get() = pending.sumOf { it.sizeBytes }
 
     fun isGolden(entry: MediaEntry): Boolean = GameEngine.isGolden(entry.key, profile.round)
+
+    fun isFavorite(entry: MediaEntry): Boolean = entry.key in favoriteKeys
 }
 
 /** Esito di un'eliminazione definitiva, per festeggiare. */
@@ -113,6 +118,7 @@ class GalleryViewModel(app: Application) : AndroidViewModel(app) {
     private var byKey: Map<String, MediaEntry> = emptyMap()
     private val kept = HashSet<String>(store.loadKept())
     private val pendingKeys = LinkedHashSet<String>(store.loadPending())
+    private val favoriteKeys = LinkedHashSet<String>(store.loadFavorites())
     private val history = ArrayDeque<HistoryEntry>()
     private var persistJob: Job? = null
     private var started = false
@@ -145,6 +151,7 @@ class GalleryViewModel(app: Application) : AndroidViewModel(app) {
                 // dimentica le decisioni su file che non esistono più
                 pendingKeys.retainAll(byKey.keys)
                 kept.retainAll(byKey.keys)
+                favoriteKeys.retainAll(byKey.keys)
                 persistNow()
             }
             rebuildDeck()
@@ -166,6 +173,15 @@ class GalleryViewModel(app: Application) : AndroidViewModel(app) {
     fun setHaptics(on: Boolean) {
         store.hapticsOn = on
         _state.update { it.copy(hapticsOn = on) }
+    }
+
+    /** Mette o toglie la stella: i contenuti con la stella finiscono nella sezione Preferiti. */
+    fun toggleFavorite(entry: MediaEntry) {
+        val added = favoriteKeys.add(entry.key)
+        if (!added) favoriteKeys.remove(entry.key)
+        publish(index = _state.value.index)
+        persistSoon()
+        _events.tryEmit(GameEvent.Message(if (added) "⭐ Aggiunto ai preferiti" else "Tolto dai preferiti"))
     }
 
     fun decide(decision: Decision) {
@@ -311,6 +327,7 @@ class GalleryViewModel(app: Application) : AndroidViewModel(app) {
 
         pendingKeys.removeAll(keys)
         kept.removeAll(keys)
+        favoriteKeys.removeAll(keys)
         setItems(allItems.filter { it.key !in keys })
         history.clear()
         _state.update { s ->
@@ -395,6 +412,8 @@ class GalleryViewModel(app: Application) : AndroidViewModel(app) {
             it.copy(
                 index = index,
                 pending = pendingList(),
+                favorites = favoriteKeys.mapNotNull { byKey[it] }.asReversed(),
+                favoriteKeys = HashSet(favoriteKeys),
                 canUndo = history.isNotEmpty(),
                 profile = engine.profile,
                 combo = engine.combo,
@@ -413,18 +432,19 @@ class GalleryViewModel(app: Application) : AndroidViewModel(app) {
     private fun persistSoon() {
         val keptSnapshot = HashSet(kept)
         val pendingSnapshot = pendingKeys.toList()
+        val favoriteSnapshot = favoriteKeys.toList()
         val profile = engine.profile
         persistJob?.cancel()
         persistJob = viewModelScope.launch(Dispatchers.IO) {
             delay(300)
-            store.save(keptSnapshot, pendingSnapshot)
+            store.save(keptSnapshot, pendingSnapshot, favoriteSnapshot)
             store.saveProfile(profile)
         }
     }
 
     private fun persistNow() {
         persistJob?.cancel()
-        store.save(kept, pendingKeys.toList())
+        store.save(kept, pendingKeys.toList(), favoriteKeys.toList())
         store.saveProfile(engine.profile)
     }
 
