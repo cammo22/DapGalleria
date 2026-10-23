@@ -13,7 +13,12 @@ data class MediaEntry(
     val sizeBytes: Long,
     val dateMillis: Long,
     val durationMs: Long,
+    val width: Int = 0,
+    val height: Int = 0,
 ) {
     /** Chiave stabile usata per salvare le decisioni (le righe di foto e video hanno id che si sovrappongono). */
     val key: String = uri.toString()
+
+    /** Due contenuti con la stessa firma sono copie identiche (vedi [MediaRules.twins]). */
+    val signature: String? get() = MediaRules.signature(type, sizeBytes, width, height, durationMs)
 }

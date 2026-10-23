@@ -36,6 +36,9 @@ class MediaRepository(private val resolver: ContentResolver) {
             add(MediaStore.MediaColumns.DISPLAY_NAME)
             add(MediaStore.MediaColumns.SIZE)
             add(MediaStore.MediaColumns.DATE_ADDED)
+            add(MediaStore.MediaColumns.MIME_TYPE)
+            add(MediaStore.MediaColumns.WIDTH)
+            add(MediaStore.MediaColumns.HEIGHT)
             add(if (isVideo) MediaStore.Video.VideoColumns.DATE_TAKEN else MediaStore.Images.ImageColumns.DATE_TAKEN)
             if (isVideo) add(MediaStore.Video.VideoColumns.DURATION)
         }.toTypedArray()
@@ -46,6 +49,9 @@ class MediaRepository(private val resolver: ContentResolver) {
             val nameCol = c.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
             val sizeCol = c.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE)
             val addedCol = c.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_ADDED)
+            val mimeCol = c.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
+            val widthCol = c.getColumnIndexOrThrow(MediaStore.MediaColumns.WIDTH)
+            val heightCol = c.getColumnIndexOrThrow(MediaStore.MediaColumns.HEIGHT)
             val takenCol = c.getColumnIndexOrThrow(
                 if (isVideo) MediaStore.Video.VideoColumns.DATE_TAKEN else MediaStore.Images.ImageColumns.DATE_TAKEN,
             )
@@ -53,16 +59,20 @@ class MediaRepository(private val resolver: ContentResolver) {
 
             while (c.moveToNext()) {
                 val id = c.getLong(idCol)
+                val name = c.getString(nameCol) ?: ""
+                if (isVideo && MediaRules.isHiddenVideo(name, c.getString(mimeCol))) continue
                 val taken = c.getLong(takenCol)
                 val added = c.getLong(addedCol) * 1000L
                 result += MediaEntry(
                     id = id,
                     type = type,
                     uri = ContentUris.withAppendedId(collection, id),
-                    name = c.getString(nameCol) ?: "",
+                    name = name,
                     sizeBytes = c.getLong(sizeCol),
                     dateMillis = if (taken > 0) taken else added,
                     durationMs = if (durationCol >= 0) c.getLong(durationCol) else 0L,
+                    width = c.getInt(widthCol),
+                    height = c.getInt(heightCol),
                 )
             }
         }

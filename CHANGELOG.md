@@ -4,6 +4,18 @@ Tutte le versioni notevoli dell'app. Le date sono in formato AAAA-MM-GG.
 Ogni versione pubblicata ha la sua [release GitHub](https://github.com/cammo22/DapGalleria/releases) con l'APK firmato:
 si installa sopra la versione di prima, senza perdere punti e decisioni.
 
+## [2.1.1] — 2026-10-23 · Niente file .ts, niente doppioni
+
+### 🧹 Il mazzo più pulito
+- **Via i file `.ts`**: Android mette tra i "video" anche i file `.ts` (sorgenti TypeScript, pezzi di streaming) che non
+  hanno anteprima e non si riproducono. Ora non entrano più nel mazzo.
+- **Niente doppioni**: la stessa foto o lo stesso video salvato più volte (WhatsApp, Telegram, screenshot, copie in
+  altre cartelle) è riconosciuto da tipo, peso, dimensioni (e durata) uguali. Nel mazzo se ne vede **una carta sola**
+  e la tua decisione vale anche per le copie: se tieni, le tieni tutte; se elimini, finiscono tutte nella lista
+  "Da eliminare" (le vedi lì una per una e puoi togliere quelle che vuoi salvare). Annulla rimette a posto anche le copie.
+- Se una copia l'avevi già valutata prima dell'aggiornamento, la carta gemella non ricompare.
+- Il contatore del giro e le percentuali contano le carte vere, senza i doppioni.
+
 ## [2.1.0] — 2026-10-23 · I preferiti ⭐
 
 ### ⭐ Preferiti

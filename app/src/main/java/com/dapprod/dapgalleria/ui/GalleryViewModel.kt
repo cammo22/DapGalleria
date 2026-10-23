@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.dapprod.dapgalleria.data.MediaEntry
 import com.dapprod.dapgalleria.data.MediaRepository
+import com.dapprod.dapgalleria.data.MediaRules
 import com.dapprod.dapgalleria.data.MediaSaver
 import com.dapprod.dapgalleria.data.MediaType
 import com.dapprod.dapgalleria.data.PhotoEdit
@@ -84,6 +85,9 @@ sealed interface GameEvent {
     data class Message(val text: String) : GameEvent
 }
 
+/** Le copie identiche di una carta e dove stavano prima della decisione (per l'annulla). */
+private class TwinSnapshot(val keys: List<String>, val kept: List<String>, val pending: List<String>)
+
 private class HistoryEntry(
     val key: String,
     val decision: Decision,
@@ -93,6 +97,7 @@ private class HistoryEntry(
     val golden: Boolean,
     /** Se era una modifica: il contenuto nuovo creato (da rimuovere se si annulla). */
     val createdUri: Uri? = null,
+    val twins: TwinSnapshot? = null,
 )
 
 class GalleryViewModel(app: Application) : AndroidViewModel(app) {
@@ -115,6 +120,10 @@ class GalleryViewModel(app: Application) : AndroidViewModel(app) {
     val events: SharedFlow<GameEvent> = _events.asSharedFlow()
 
     private var allItems: List<MediaEntry> = emptyList()
+    /** Le carte del mazzo: [allItems] senza le copie identiche (di ognuna se ne vede una sola). */
+    private var uniqueItems: List<MediaEntry> = emptyList()
+    /** Carta mostrata → le sue copie identiche. La decisione sulla carta vale anche per loro. */
+    private var twinsByCard: Map<String, List<String>> = emptyMap()
     private var byKey: Map<String, MediaEntry> = emptyMap()
     private val kept = HashSet<String>(store.loadKept())
     private val pendingKeys = LinkedHashSet<String>(store.loadPending())
@@ -189,7 +198,13 @@ class GalleryViewModel(app: Application) : AndroidViewModel(app) {
         val item = s.current ?: return
         val golden = s.isGolden(item)
         val outcome = engine.swipe(golden, System.currentTimeMillis(), today())
-        history.addLast(HistoryEntry(item.key, decision, wasKept = item.key in kept, index = s.index, points = outcome.points + outcome.bonusPoints, golden = golden))
+        val twins = decideTwins(item.key, decision)
+        history.addLast(
+            HistoryEntry(
+                item.key, decision, wasKept = item.key in kept, index = s.index,
+                points = outcome.points + outcome.bonusPoints, golden = golden, twins = twins,
+            ),
+        )
         when (decision) {
             Decision.KEEP -> kept.add(item.key)
             Decision.DELETE -> {
@@ -235,10 +250,11 @@ class GalleryViewModel(app: Application) : AndroidViewModel(app) {
         val created = repository.loadOne(type, uri) ?: fallbackEntry(type, uri, original, durationHint)
         val s = _state.value
         val isCurrent = s.current?.key == original.key
+        val decision = if (replace) Decision.DELETE else Decision.KEEP
+        val twins = decideTwins(original.key, decision)
         setItems(allItems + created)
         kept.add(created.key)
 
-        val decision = if (replace) Decision.DELETE else Decision.KEEP
         val golden = s.isGolden(original)
         val swipe = engine.swipe(golden, System.currentTimeMillis(), today())
         val edit = engine.edited(today())
@@ -256,7 +272,7 @@ class GalleryViewModel(app: Application) : AndroidViewModel(app) {
         history.addLast(
             HistoryEntry(
                 original.key, decision, wasKept = original.key in kept, index = s.index,
-                points = outcome.points + outcome.bonusPoints, golden = golden, createdUri = uri,
+                points = outcome.points + outcome.bonusPoints, golden = golden, createdUri = uri, twins = twins,
             ),
         )
         if (replace) {
@@ -291,6 +307,13 @@ class GalleryViewModel(app: Application) : AndroidViewModel(app) {
                 if (e.wasKept) kept.add(e.key)
             }
             Decision.KEEP -> if (!e.wasKept) kept.remove(e.key)
+        }
+        e.twins?.let { t ->
+            val all = t.keys.toSet()
+            kept.removeAll(all)
+            pendingKeys.removeAll(all)
+            kept.addAll(t.kept)
+            pendingKeys.addAll(t.pending)
         }
         if (e.createdUri != null) {
             // annullare una modifica elimina anche la copia creata
@@ -375,18 +398,38 @@ class GalleryViewModel(app: Application) : AndroidViewModel(app) {
         _events.tryEmit(GameEvent.RoundDone(summary, outcome))
     }
 
+    /** Stessa decisione per le copie identiche della carta: ritorna com'erano prima, per annullare. */
+    private fun decideTwins(card: String, decision: Decision): TwinSnapshot? {
+        val keys = twinsByCard[card] ?: return null
+        val snapshot = TwinSnapshot(keys, keys.filter { it in kept }, keys.filter { it in pendingKeys })
+        when (decision) {
+            Decision.KEEP -> kept.addAll(keys)
+            Decision.DELETE -> {
+                kept.removeAll(keys.toSet())
+                pendingKeys.addAll(keys)
+            }
+        }
+        return snapshot
+    }
+
     private fun setItems(items: List<MediaEntry>) {
         allItems = items
+        twinsByCard = MediaRules.twins(items.map { it.key to it.signature })
+        val hidden = twinsByCard.values.flatten().toHashSet()
+        uniqueItems = if (hidden.isEmpty()) items else items.filter { it.key !in hidden }
         byKey = items.associateBy { it.key }
     }
 
     private fun isReviewed(key: String) = key in kept || key in pendingKeys
 
+    /** Una carta è già vista anche se è stata valutata una sua copia identica (niente "rieccola"). */
+    private fun isCardReviewed(card: String) = isReviewed(card) || twinsByCard[card]?.any(::isReviewed) == true
+
     /** Il mazzo è sempre in ordine casuale: ogni volta che viene ricostruito si rimescola. */
     private fun rebuildDeck() {
         val s = _state.value
-        val list = allItems
-            .filter { it.type == s.mode && !isReviewed(it.key) }
+        val list = uniqueItems
+            .filter { it.type == s.mode && !isCardReviewed(it.key) }
             .shuffled()
         history.clear()
         _state.update { it.copy(loading = false, deck = list, index = 0) }
@@ -399,8 +442,8 @@ class GalleryViewModel(app: Application) : AndroidViewModel(app) {
         var photosLeft = 0
         var videosLeft = 0
         var reviewed = 0
-        for (it in allItems) {
-            if (isReviewed(it.key)) {
+        for (it in uniqueItems) {
+            if (isCardReviewed(it.key)) {
                 reviewed++
             } else if (it.type == MediaType.PHOTO) {
                 photosLeft++
@@ -419,7 +462,7 @@ class GalleryViewModel(app: Application) : AndroidViewModel(app) {
                 combo = engine.combo,
                 multiplier = engine.multiplier,
                 comboExpiresAt = now + engine.comboTimeLeft(now),
-                totalItems = allItems.size,
+                totalItems = uniqueItems.size,
                 reviewedItems = reviewed,
                 photosLeft = photosLeft,
                 videosLeft = videosLeft,
